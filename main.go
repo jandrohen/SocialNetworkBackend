@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"os"
+	"strings"
 
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/awsgo"
+	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
+	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/secretmanager"
 
 	"github.com/aws/aws-lambda-go/events"
 	lambda "github.com/aws/aws-lambda-go/lambda"
@@ -30,8 +33,30 @@ func ExecLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		return res, nil
 	}
 
+	SecretModel, err := secretmanager.GetSecret(os.Getenv("SecretName"))
+	if err != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Error getting secret",
+			Headers:   map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	}
 
+	path := strings.Replace(request.PathParameters["socialnetworkgo"], os.Getenv("UrlPrefix"), "", -1)
 
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("password"), SecretModel.Password)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtSign"), SecretModel.JWTSign)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))	
+	
 }
 
 func ValidParams() bool {

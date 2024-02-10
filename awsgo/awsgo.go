@@ -9,14 +9,14 @@ import (
 
 var Ctx context.Context
 var Cfg aws.Config
-var Err error
+var err error
 
 
-func InitAWS() (aws.Config, error) {
+func InitAWS() {
 	Ctx = context.TODO()
-	Cfg, Err = config.LoadDefaultConfig(Ctx, config.WithDefaultRegion("eu-south-2"))
-	if Err != nil {
-		panic("Error loading AWS configuration" + Err.Error())
+	Cfg, err = config.LoadDefaultConfig(Ctx, config.WithDefaultRegion("eu-south-2"))
+	if err != nil {
+		panic("Error loading AWS configuration" + err.Error())
 	}
 
 }

@@ -7,6 +7,7 @@ import (
 
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/awsgo"
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/db"
+	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/handlers"
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/secretmanager"
 
@@ -71,7 +72,22 @@ func ExecLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		}
 		return res, nil
 	}
-	
+
+	respAPI := handlers.Handlers(awsgo.Ctx, request)
+	if respAPI.CustomResp != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: respAPI.Status,
+			Body:       respAPI.Message,
+			Headers:    map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+
+	} else {
+			return respAPI.CustomResp, nil
+	}
+
 }
 
 func ValidParams() bool {

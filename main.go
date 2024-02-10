@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/awsgo"
+	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/db"
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
 	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/secretmanager"
 
@@ -56,6 +57,20 @@ func ExecLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtSign"), SecretModel.JWTSign)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))	
+
+	// Check Connection to the database
+
+	err = db.ConnectDB(awsgo.Ctx)
+	if err != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Error connecting to the database",
+			Headers:   map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	}
 	
 }
 

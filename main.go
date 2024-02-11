@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/awsgo"
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/db"
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/handlers"
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/secretmanager"
+	"SocialNetworkBackend/awsgo"
+	"SocialNetworkBackend/db"
+	"SocialNetworkBackend/handlers"
+	"SocialNetworkBackend/models"
+	"SocialNetworkBackend/secretmanager"
 
 	"github.com/aws/aws-lambda-go/events"
 	lambda "github.com/aws/aws-lambda-go/lambda"

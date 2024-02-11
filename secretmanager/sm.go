@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/awsgo"
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
+	"SocialNetworkBackend/awsgo"
+	"SocialNetworkBackend/models"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"

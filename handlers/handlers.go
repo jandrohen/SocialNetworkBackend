@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/jwt"
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
+	"SocialNetworkBackend/jwt"
+	"SocialNetworkBackend/models"
+	"SocialNetworkBackend/routers"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -25,7 +26,8 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 	switch ctx.Value(models.Key("path")).(string) {
 		case "POST"	:
 			switch ctx.Value(models.Key("path")).(string) {
-			
+				case "register"	:
+					return routers.Register(ctx)
 			}
 			//
 		case "GET"	:

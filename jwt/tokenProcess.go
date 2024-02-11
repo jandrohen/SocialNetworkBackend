@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"WebstormProjects/UDEMY/GO/SocialNetworkBackend/models"
+	"SocialNetworkBackend/models"
 
 	jwt "github.com/golang-jwt/jwt/v5"
 )

@@ -16,7 +16,7 @@ func Handlers(ctx context.Context, request events.APIGatewayProxyRequest) models
 	var res models.RespAPI
 	res.Status = 400
 
-	isOk, statusCode, msg, claim := validAuth(ctx, request)
+	isOk, statusCode, msg, _ := validAuth(ctx, request)
 	if !isOk {
 		res.Status = statusCode
 		res.Message = msg

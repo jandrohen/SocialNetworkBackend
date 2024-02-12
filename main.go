@@ -1,116 +1,50 @@
 package main
 
 import (
-	"context"
 	"os"
-	"strings"
 
-	"SocialNetworkBackend/awsgo"
-	"SocialNetworkBackend/db"
-	"SocialNetworkBackend/handlers"
-	"SocialNetworkBackend/models"
-	"SocialNetworkBackend/secretmanager"
+	"SocialNetworkBackend/pkg/configs"
+	"SocialNetworkBackend/pkg/middleware"
+	"SocialNetworkBackend/pkg/routes"
+	"SocialNetworkBackend/pkg/utils"
 
-	"github.com/aws/aws-lambda-go/events"
-	lambda "github.com/aws/aws-lambda-go/lambda"
+	"github.com/gofiber/fiber/v2"
+
+	_ "github.com/joho/godotenv/autoload" // load .env file automatically
 )
+
+// @title API
+// @version 1.0
+// @description This is an auto-generated API Docs.
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email your@mail.com
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @BasePath /api
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
-	lambda.Start(ExecLambda)
-}
+	// Define Fiber config.
+	config := configs.FiberConfig()
 
-func ExecLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
-	
-	var res *events.APIGatewayProxyResponse
+	// Define a new Fiber app with config.
+	app := fiber.New(config)
 
-	awsgo.InitAWS()
-	
-	if !ValidParams() {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       "Missing parameters",
-			Headers:   map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
-	}
+	// Middlewares.
+	middleware.FiberMiddleware(app) // Register Fiber's middleware for app.
 
-	SecretModel, err := secretmanager.GetSecret(os.Getenv("SecretName"))
-	if err != nil {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       "Error getting secret",
-			Headers:   map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
-	}
+	// Routes.
+	routes.SwaggerRoute(app)  // Register a route for API Docs (Swagger).
+	routes.PublicRoutes(app)  // Register a public routes for app.
+	routes.PrivateRoutes(app) // Register a private routes for app.
+	routes.NotFoundRoute(app) // Register route for 404 Error.
 
-	path := strings.Replace(request.PathParameters["socialnetworkgo"], os.Getenv("UrlPrefix"), "", -1)
-
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("password"), SecretModel.Password)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtSign"), SecretModel.JWTSign)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))	
-
-	// Check Connection to the database
-
-	err = db.ConnectDB(awsgo.Ctx)
-	if err != nil {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       "Error connecting to the database",
-			Headers:   map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
-	}
-
-	respAPI := handlers.Handlers(awsgo.Ctx, request)
-	if respAPI.CustomResp != nil {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: respAPI.Status,
-			Body:       respAPI.Message,
-			Headers:    map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
-
+	// Start server (with or without graceful shutdown).
+	if os.Getenv("STAGE_STATUS") == "dev" {
+		utils.StartServer(app)
 	} else {
-			return respAPI.CustomResp, nil
+		utils.StartServerWithGracefulShutdown(app)
 	}
-
 }
-
-func ValidParams() bool {
-	_, getParameter := os.LookupEnv("SecretName")
-
-	if !getParameter {
-		return false
-	}
-
-	_, getParameter = os.LookupEnv("BucketName")
-
-	if !getParameter {
-		return false
-	}
-
-	_, getParameter = os.LookupEnv("UrlPrefix")
-
-	if !getParameter {
-		return false
-	}
-
-	return true
-
-}
-
-

@@ -40,7 +40,7 @@ func OpenDBConnection() (*Queries, error) {
 
 	// Define Queries struct for collect all app queries(sql or NoSql).
 	return &Queries{
-		UserQueries: &queries.UserQueries{Collection: dbNoSql.Database(os.Getenv("MONGO_DB_NAME")).Collection("users")},
+		UserQueries: &queries.UserQueries{Collection: dbNoSql.Database(os.Getenv("DB_NAME")).Collection("users")},
 		// BookQueries: &queries.BookQueries{DB: dbsql},
 	}, nil
 }

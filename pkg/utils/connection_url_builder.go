@@ -15,12 +15,10 @@ func ConnectionURLBuilder(n string) (string, error) {
 	case "mongo":
 		// URL for MongoDB connection.
 		url = fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s",
+			"mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority",
 			os.Getenv("DB_USER"),
 			os.Getenv("DB_PASSWORD"),
 			os.Getenv("DB_HOST"),
-			os.Getenv("DB_PORT"),
-			os.Getenv("DB_NAME"),
 		)
 	case "postgres":
 		// URL for PostgreSQL connection.

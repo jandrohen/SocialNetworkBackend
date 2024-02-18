@@ -24,6 +24,6 @@ func PublicRoutes(a *fiber.App) {
 	route2 := a.Group("/")
 
 	// Routes for GET method:
-	route2.Static("/", "./public")
+	route2.Static("/app", "./public")
 
 }

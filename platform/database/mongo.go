@@ -27,11 +27,12 @@ func MongoDBConnection() (*mongo.Client, error) {
 	}
 
 	// Set database connection settings:
+	// Set options for MongoDB connection.
+	options := options.Client().ApplyURI(mongoDbConnURL)
+
 	// 	- SetMaxPoolSize: the maximum number of connections in the connection pool
 	// 	- SetMaxConnIdleTime: the maximum number of milliseconds that a connection can remain idle in the pool
 	// 	- SetMaxConnIdleTime: the maximum number of milliseconds that a connection can remain idle in the pool
-	// Set options for MongoDB connection.
-	options := options.Client().ApplyURI(mongoDbConnURL)
 	options.SetMaxPoolSize(uint64(maxConn))
 	options.SetMaxConnIdleTime(time.Duration(maxIdleConn))
 	options.SetMaxConnIdleTime(time.Duration(maxLifetimeConn))
